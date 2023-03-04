@@ -5,7 +5,7 @@ import ApolloClicent from 'apollo-client';
 import { createHttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { DefaultApolloClient } from '@vue/apollo-composable';
-import './assets/main.css';
+import './assets/css/main.css';
 const httpLink = createHttpLink({
     uri: 'http://localhost:4000',
 });
