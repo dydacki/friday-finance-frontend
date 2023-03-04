@@ -1,0 +1,86 @@
+/* Color names are generated with: http://chir.ag/projects/name-that-color/ */
+
+/*
+  COLORS
+*/
+
+/* Black */
+:root {
+  --color-black:     #000000;
+  --color-black-rgb: 0, 0, 0;
+
+  /* Gray */
+  --color-cod-gray:       #111111;
+  --color-woodsmoke:      #171a1d;
+  --color-woodsmoke-rgb:  23, 26, 29;
+  --color-big-fish:       #202229;
+  --color-shark:          #252830;
+  --color-shark-rgb:      37, 40, 48;
+  --color-charade:        #272b33;
+  --color-tuna:           #30343e;
+  --color-tuna-rgb:       48, 52, 62;
+  --color-bright-gray:    #323741;
+  --color-brighter-gray:  #3c444c;
+  --color-mako:           #414550;
+  --color-trout:          #4d515e;
+  --color-shuttle-gray:   #5c616e;
+  --color-pale-sky:       #6e7483;
+  --color-boulder:        #777777;
+  --color-silver-chalice: #a1a1a1;
+  --color-star-dust:      #adadad;
+  --color-french-gray:    #b5b7c4;
+  --color-ghost:          #c5c7d3;
+  --color-alto:           #d7d7d7;
+  --color-seashell:       #f1f1f1;
+  --color-gallery:        #f0f0f0;
+
+  /* White */
+  --color-white: #ffffff;
+
+  /* Blue */
+  --color-dark-cyan-blue: #232f43;
+  --color-san-juan:       #325075;
+  --color-cambray:        #406491;
+  --color-venice-blue:    #065597;
+  --color-curious-blue:   #1789E6;
+  --color-dodger-blue:    #45acff;
+  --color-malibu:         #70bfff;
+  --color-sail:           #bbdefa;
+
+  /* Green */
+  --color-mantis: #7ccc72;
+
+  /* Yellow */
+  --color-lightning-yellow: #f7c024;
+
+  /* Purple */
+  --color-deluge: #835e98;
+
+  /* Pink */
+  --color-cranberry: #e0548c;
+
+  /* Red */
+  --color-turkish-rose:    #b96b6b;
+  --color-mojo:            #c13f3f;
+  --color-cinnabar:        #e94343;
+  --color-sunglo:          #e66868;
+  --color-bittersweet:     #ff6868;
+  --color-vivid-tangerine: #ff8a8a;
+  --color-pippin:          #ffe1e1;
+
+  /* Transparent (not technically a color) */
+  --color-transparent: transparent;
+
+
+  /*
+    SPECIALIZED COLORS
+  */
+
+  /* Text color */
+  --color-text:            var(--color-white);
+  --color-red-text:        var(--color-bittersweet);
+  --color-blue-text:       var(--color-malibu);
+  --color-light-blue-text: var(--color-sail);
+  --color-gray-text:       var(--color-star-dust);
+  --color-light-gray-text: var(--color-french-gray);
+}
