@@ -1,11 +1,27 @@
-import { createApp } from 'vue'
+import { createApp, h, provide } from 'vue'
 import App from './App.vue'
 import router from './router'
-
+import ApolloClicent from 'apollo-client';
+import { createHttpLink } from 'apollo-link-http'
+import { InMemoryCache } from 'apollo-cache-inmemory'
 import './assets/main.css'
 
-const app = createApp(App)
+const httpLink = createHttpLink({
+  uri: 'http://localhost:4000',
+});
 
-app.use(router)
+const apolloClicent = new ApolloClicent({
+  link: httpLink,
+  cache: new InMemoryCache()
+});
 
-app.mount('#app')
+const app = 
+  createApp({
+    setup() {
+      provide('DefaultApolloClient', apolloClicent)
+    },
+
+    render: () => h(App)
+  })
+  .use(router)
+  .mount('#app');
