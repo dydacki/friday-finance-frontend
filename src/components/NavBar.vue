@@ -3,7 +3,7 @@
     <div class=" navbar fixed flex justify-start top-0 w-full z-500 whitespace-nowrap"
     @click.left.stop>
       <div class="flex items-center select-none">
-        <div class="logo flex items-start font-bold ">
+        <div class="logo flex items-start font-bold ml-4 mr-4">
           FRIDAY FINANCE
         </div>
         <div class="router-link flex items-center cursor-pointer">
@@ -30,10 +30,7 @@
 
 .logo {
   color: var(--color-text);
-  margin-left: 16px;
-  margin-right: 16px;
   font-size: 20px;
-  margin-top: -3px;
 }
 
 .router-link {

@@ -1,0 +1,12 @@
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-size: 14px;
+  font-family: 'Brown', sans-serif;
+  letter-spacing: 0.3px;
+  font-weight: 300;
+  color: var(--color-white);
+  background-color: var(--color-shark);
+}
