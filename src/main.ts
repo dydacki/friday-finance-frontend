@@ -4,6 +4,7 @@ import router from './router'
 import ApolloClicent from 'apollo-client';
 import { createHttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
+import { DefaultApolloClient } from '@vue/apollo-composable';
 import './assets/main.css'
 
 const httpLink = createHttpLink({
@@ -18,7 +19,7 @@ const apolloClicent = new ApolloClicent({
 const app = 
   createApp({
     setup() {
-      provide('DefaultApolloClient', apolloClicent)
+      provide(DefaultApolloClient, apolloClicent)
     },
 
     render: () => h(App)
