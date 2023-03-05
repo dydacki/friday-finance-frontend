@@ -1,10 +1,32 @@
 import { Transaction } from '../interfaces/model/Transaction';
 import { TransactionService } from '../interfaces/services/TransactionService';
+import gql from 'graphql-tag';
+import { useApolloClient } from '@vue/apollo-composable';
 
 export class GraphQlTransactionService implements TransactionService {
   
-  getAll(): Promise<Transaction[]> {
-    throw new Error('Method not implemented.');
+  async getAll(): Promise<Transaction[]> {
+    const transactionsQuery = gql`
+    query {
+      getCategories {
+        id
+        accountId
+        transactionId
+        reference
+        amount
+        currency
+        date
+      }
+    }
+  `;
+
+  const clientFactory = useApolloClient();
+  const apoolloCLient = clientFactory.resolveClient();      
+  const result = await apoolloCLient.query({
+    query: transactionsQuery
+  });
+
+  return result.data?.getTransactions as Transaction[] ?? [];
   }
 
   getOne(transactionId: string): Promise<Transaction | null> {
