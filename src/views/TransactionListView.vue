@@ -10,12 +10,18 @@ import { useApolloClient } from '@vue/apollo-composable';
 import { Account } from '../assets/interfaces/backend/Account';
 import { Category } from '../assets/interfaces/backend/Category';
 import { Transaction } from '../assets/interfaces/backend/Transaction';
+import { Account as FrontendAccount } from '../assets/interfaces/frontend/Account';
+import { Category as FrontendCategory } from '../assets/interfaces/frontend/Category';
+import { Transaction as FrontendTransaction } from '../assets/interfaces/frontend/Transaction';
+import { toFrontendAccount, toFrontendCategory, toFrontendTransaction } from '../assets/ModelTransforms';
 import ComponentLoader from '../components/ComponentLoader.vue';
 
 const loading: Ref<Boolean> = ref(false);
 const accounts: Ref<Account[]> = ref([]);
 const categories: Ref<Category[]> = ref([]);
-const transactions: Ref<Transaction[]> = ref([]);
+const frontendAccounts: Ref<FrontendAccount[]> = ref([]);
+const frontendCategories: Ref<FrontendCategory[]> = ref([]);
+const frontendTransactions: Ref<FrontendTransaction[]> = ref([]);
 const graphQlClient = useApolloClient().resolveClient();
 
 const fetchAccounts = async(): Promise<Account[]> => {
@@ -95,10 +101,11 @@ const loadData = async () => {
   ).then(results => {
     accounts.value = results[0];
     categories.value = results[1];
-    transactions.value = results[2];
+    frontendAccounts.value = results[0].map(a => toFrontendAccount(a));
+    frontendCategories.value = results[1].map(c => toFrontendCategory(c));
+    frontendTransactions.value = results[2].map(t => toFrontendTransaction(t, accounts.value, categories.value));
   }).catch(error => {
-    console.log(error)})
-    .finally(() => loading.value = false);
+    console.log(error)});
 };
 
 onMounted(async () => {
