@@ -6,9 +6,9 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref } from 'vue';
-import { Account } from '../assets/interfaces/model/Account';
-import { Category } from '../assets/interfaces/model/Category';
-import { Transaction } from '../assets/interfaces/model/Transaction';
+import { Account } from '../assets/interfaces/backend/Account';
+import { Category } from '../assets/interfaces/backend/Category';
+import { Transaction } from '../assets/interfaces/backend/Transaction';
 import gql from 'graphql-tag';
 import { useApolloClient } from '@vue/apollo-composable';
 
