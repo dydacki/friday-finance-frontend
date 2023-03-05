@@ -7,19 +7,105 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref } from 'vue';
 import { Account } from '../assets/interfaces/model/Account';
-import { AccountService } from '../assets/interfaces/services/AccountService';
-import { GraphQlAccountService } from '../assets/services/GraphQlAccountService';
+import { Category } from '../assets/interfaces/model/Category';
+import { Transaction } from '../assets/interfaces/model/Transaction';
+import gql from 'graphql-tag';
+import { useApolloClient } from '@vue/apollo-composable';
 
+const loading: Ref<Boolean> = ref(false);
 const accounts: Ref<Account[]> = ref([]);
-const accountService: AccountService = new GraphQlAccountService();
+const categories: Ref<Category[]> = ref([]);
+const transactions: Ref<Transaction[]> = ref([]);
+const graphQlClient = useApolloClient().resolveClient();
 
+const fetchAccounts = async(): Promise<Account[]> => {
+  const accountsQuery = gql`
+    query {
+      getAccounts {
+        id
+        bank
+        name
+      }
+    }
+  `;
+  
+  try {
+    const result = await graphQlClient.query({
+      query: accountsQuery
+    });
+    return result.data?.getAccounts as Account[] ?? [];
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
 
-onMounted(async() => {
-  accounts.value = await accountService.getAll();
-})
+const fetchCategories = async(): Promise<Category[]> => {
+  const categoriesQuery = gql`
+    query {
+      getCategories {
+        id
+        color
+        name
+      }
+    }
+  `;
+  
+  try {
+    const result = await graphQlClient.query({
+      query: categoriesQuery
+    });
+    return result.data?.getCategories as Category[] ?? [];
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
 
+const fetchTransactions = async(): Promise<Transaction[]> => {
+  const transactionsQuery = gql`
+    query {
+      getTransactions {
+        id
+        accountId
+        categoryId
+        reference
+        amount
+        currency
+        date
+      }
+    }
+  `;
+  
+  try {
+    const result = await graphQlClient.query({
+      query: transactionsQuery
+    });
+    return result.data?.getTransactions as Transaction[] ?? [];
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+onMounted(
+
+async() => {
+  loading.value = true;
+  Promise.all([
+  fetchAccounts(),
+  fetchCategories(),
+  fetchTransactions()]
+  ).then(results => {
+    accounts.value = results[0];
+    categories.value = results[1];
+    transactions.value = results[2];
+    loading.value = false;
+  }).catch(error => {
+    console.log(error)});
+    loading.value = false;
+});
 </script>
-
 
 <style>
 @media (min-width: 1024px) {
