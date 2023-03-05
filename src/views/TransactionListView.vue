@@ -1,16 +1,16 @@
 <template>
-  <div class="about">
-    <h1>This is a transaction list page</h1>
-  </div>
+  <ComponentLoader
+    :z-index="19" />
 </template>
 
 <script setup lang="ts">
 import { onMounted, Ref, ref } from 'vue';
+import gql from 'graphql-tag';
+import { useApolloClient } from '@vue/apollo-composable';
 import { Account } from '../assets/interfaces/backend/Account';
 import { Category } from '../assets/interfaces/backend/Category';
 import { Transaction } from '../assets/interfaces/backend/Transaction';
-import gql from 'graphql-tag';
-import { useApolloClient } from '@vue/apollo-composable';
+import ComponentLoader from '../components/ComponentLoader.vue';
 
 const loading: Ref<Boolean> = ref(false);
 const accounts: Ref<Account[]> = ref([]);
@@ -87,11 +87,7 @@ const fetchTransactions = async(): Promise<Transaction[]> => {
     return [];
   }
 }
-
-onMounted(
-
-async() => {
-  loading.value = true;
+const loadData = async () => {
   Promise.all([
   fetchAccounts(),
   fetchCategories(),
@@ -100,10 +96,15 @@ async() => {
     accounts.value = results[0];
     categories.value = results[1];
     transactions.value = results[2];
-    loading.value = false;
   }).catch(error => {
-    console.log(error)});
-    loading.value = false;
+    console.log(error)})
+    .finally(() => loading.value = false);
+};
+
+onMounted(async () => {
+  loading.value = true;
+  await loadData();
+  loading.value = false;
 });
 </script>
 
