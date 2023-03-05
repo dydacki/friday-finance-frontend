@@ -5,7 +5,7 @@ import { useQuery } from '@vue/apollo-composable';
 
 export class GraphQlCategoryService implements CategoryService {
 
-  getAll(): Category[] {
+  getAll(): Promise<Category[]> {
     const categoriesQuery = gql`
       query {
         getCategories {

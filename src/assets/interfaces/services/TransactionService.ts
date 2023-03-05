@@ -1,7 +1,7 @@
 import { Transaction } from '../model/Transaction';
 
 export interface TransactionService {
-  getAll(): Array<Transaction>;
-  getOne(transactionId: string): Transaction | null;
-  updateTransaction(transaction: Transaction): Transaction;
+  getAll(): Promise<Array<Transaction>>;
+  getOne(transactionId: string): Promise<Transaction | null>;
+  updateTransaction(transaction: Transaction): Promise<Transaction>;
 };

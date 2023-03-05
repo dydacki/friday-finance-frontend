@@ -1,11 +1,11 @@
 import { Account } from '../interfaces/model/Account';
 import { AccountService } from '../interfaces/services/AccountService';
 import gql from 'graphql-tag';
-import { useQuery } from '@vue/apollo-composable';
+import { useApolloClient } from '@vue/apollo-composable';
 
 export class GraphQlAccountService implements AccountService {
 
-  getAll(): Account[] {
+  async getAll(): Promise<Account[]> {
     const accountsQuery = gql`
       query {
         getAccounts {
@@ -16,7 +16,12 @@ export class GraphQlAccountService implements AccountService {
       }
     `;
 
-    const { result } = useQuery(accountsQuery);
-    return result.value?.getAccounts ?? [];
+      const clientFactory = useApolloClient();
+      const apoolloCLient = clientFactory.resolveClient();      
+      const result = await apoolloCLient.query({
+        query: accountsQuery
+      });
+
+    return result.data?.getAccounts as Account[] ?? [];
   }
 }

@@ -1,5 +1,5 @@
 import { Category } from '../model/Category';
 
 export interface CategoryService {
-  getAll(): Array<Category>;
+  getAll(): Promise<Array<Category>>;
 }
