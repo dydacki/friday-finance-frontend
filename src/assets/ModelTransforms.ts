@@ -22,6 +22,7 @@ function toFrontendCategory(category: BackendCategory): FrontendCategory {
 function toFrontendTransaction(transaction: BackendTransaction, accounts: BackendAccount[], categories: BackendCategory[]): FrontendTransaction {
   const account = accounts.find(a => a.id === transaction.accountId)?.name ?? '';
   const category = categories.find(c => c.id === transaction.categoryId)?.name ?? '';
+  const reference = transaction.reference !== '' ? transaction.reference : '-';
   return {
     account: account,
     amount: transaction.amount,
@@ -29,7 +30,7 @@ function toFrontendTransaction(transaction: BackendTransaction, accounts: Backen
     currency: transaction.currency,
     date: transaction.date,
     id: transaction.id,
-    reference: transaction.reference
+    reference: reference
   };
 } 
 

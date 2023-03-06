@@ -3,7 +3,9 @@
     id="app"
     class="h-full overflow-y-auto">
     <NavBar />
-    <RouterView />
+    <div class="router">
+      <RouterView />
+    </div>
   </div>
 </template>
 
@@ -13,16 +15,7 @@ import NavBar from './components/NavBar.vue'
 </script>
 
 <style scoped>
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+.router {
+  margin-top: 46px;
 }
 </style>

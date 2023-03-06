@@ -93,6 +93,7 @@ const fetchTransactions = async(): Promise<Transaction[]> => {
     return [];
   }
 }
+
 const loadData = async () => {
   Promise.all([
   fetchAccounts(),
