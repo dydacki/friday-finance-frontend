@@ -10,3 +10,16 @@
   line-height: 20px;
   height: 30px;
 }
+
+.friday-select {
+  background-color: var(--color-gallery);
+  color: var(--color-shark);
+  border: 1px solid var(--color-seashell);
+  border-radius: 3px;
+  box-sizing: border-box;
+  padding: 4px 8px;
+  outline: none;
+  font-size: 14px;
+  line-height: 20px;
+  height: 30px;
+}

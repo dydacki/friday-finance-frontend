@@ -1,5 +1,5 @@
 @import 'base.css';
-@import 'inputs.css';
+@import 'ui-components.css';
 @import 'variables.css';
 
 @tailwind base;
