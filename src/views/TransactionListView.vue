@@ -1,6 +1,7 @@
 <template>
   <ComponentLoader
-    :z-index="19" />
+    :z-index="19"
+    v-if="loading"/>
 </template>
 
 <script setup lang="ts">
@@ -23,6 +24,7 @@ const frontendAccounts: Ref<FrontendAccount[]> = ref([]);
 const frontendCategories: Ref<FrontendCategory[]> = ref([]);
 const frontendTransactions: Ref<FrontendTransaction[]> = ref([]);
 const graphQlClient = useApolloClient().resolveClient();
+const pageNo: Ref<number> = ref(1);
 
 const fetchAccounts = async(): Promise<Account[]> => {
   const accountsQuery = gql`
@@ -70,8 +72,8 @@ const fetchCategories = async(): Promise<Category[]> => {
 
 const fetchTransactions = async(): Promise<Transaction[]> => {
   const transactionsQuery = gql`
-    query {
-      getTransactions {
+    query GetTransactions($pageNo: Int!){
+      getTransactions(pageNo: $pageNo) {
         id
         accountId
         categoryId
@@ -85,7 +87,10 @@ const fetchTransactions = async(): Promise<Transaction[]> => {
   
   try {
     const result = await graphQlClient.query({
-      query: transactionsQuery
+      query: transactionsQuery,
+      variables: {
+        pageNo: pageNo.value
+    }
     });
     return result.data?.getTransactions as Transaction[] ?? [];
   } catch (error) {
@@ -106,13 +111,13 @@ const loadData = async () => {
     frontendCategories.value = results[1].map(c => toFrontendCategory(c));
     frontendTransactions.value = results[2].map(t => toFrontendTransaction(t, accounts.value, categories.value));
   }).catch(error => {
-    console.log(error)});
+    console.log(error)
+  }).finally(() => loading.value = false);
 };
 
 onMounted(async () => {
   loading.value = true;
   await loadData();
-  loading.value = false;
 });
 </script>
 

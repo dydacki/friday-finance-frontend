@@ -3,7 +3,7 @@
     :z-index="19"
     v-if="loading" />
   <div class="flex flex-wrap w-full">
-    <fieldset class="section w-full border rounded mt-4 ml-6 mr-6 mb-4">
+    <fieldset class="section w-full border rounded mt-4 ml-6 mr-6 mb-4 pl-2 pr-2 pb-2">
       <legend class="text-xl ml-4 mr-4 pl-2 pr-2">
           {{ transactionReference() }}
       </legend>
@@ -85,13 +85,19 @@
           </select>
         </div>
       </div>
+      <div class="flex justify-end m-2">
+        <button
+          :disabled="loading || saving"
+          class="button primary-button"
+          @click="saveTransaction">Save transaction</button>
+      </div>
     </fieldset>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, Ref, ref } from 'vue';
-import {useRoute} from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import gql from 'graphql-tag';
 import { useApolloClient } from '@vue/apollo-composable';
 import { Account as BackendAccount } from '../assets/interfaces/backend/Account';
@@ -103,8 +109,10 @@ import { toFrontendAccount, toFrontendCategory } from '../assets/ModelTransforms
 import ComponentLoader from '../components/ComponentLoader.vue';
 
 const graphQlClient = useApolloClient().resolveClient();
+const router = useRouter();
 const transactionId: string = useRoute().params.transactionId.toString();
 const loading = ref(false);
+const saving = ref(false);
 const frontendAccounts: Ref<FrontendAccount[]> = ref([]);
 const frontendCategories: Ref<FrontendCategory[]> = ref([]);
 const currencies = [
@@ -216,6 +224,30 @@ const fetchTransaction = async(transactionId: string): Promise<BackendTransactio
   }
 }
 
+const updateTransaction = async(backendTransaction: BackendTransaction): Promise<void> => {
+  const mutation = gql`
+    mutation Mutation ($transaction: TransactionUpdateRequest!) {
+      updateTransaction(transaction: $transaction) {
+        id
+        accountId
+        amount
+        categoryId
+        currency
+        date
+        reference
+      }
+    }
+  `;
+  
+
+  await graphQlClient.mutate({
+    mutation: mutation,
+    variables: {
+      transaction: backendTransaction
+    } 
+  });
+}
+
 onMounted(async () => {
   loading.value = true;
   const accounts = await fetchAccounts();
@@ -228,6 +260,27 @@ onMounted(async () => {
   }
   loading.value = false;
 });
+
+const saveTransaction = () => {
+  const transactionUpdate: BackendTransaction = {
+    accountId: transaction.value.accountId,
+    amount: transaction.value.amount,
+    categoryId: transaction.value.categoryId,
+    currency: transaction.value.currency,
+    date: transaction.value.date,
+    id: transaction.value.id,
+    reference: transaction.value.reference
+  }; 
+  saving.value = true;
+  try {
+    updateTransaction(transactionUpdate);
+  } catch (error) {
+    console.error(error);
+    saving.value = false;
+  }
+
+  router.push('/transactions');
+}
 </script>
 
 <style scoped>
