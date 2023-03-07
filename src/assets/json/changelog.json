@@ -1,0 +1,12 @@
+[
+  {
+    "version": "1.0.0",
+    "date": "2022-03-06",
+    "changes": {
+      "new": [
+        "Initial version of the application",
+        "Detailed transaction view with update"
+      ]
+    }
+  }
+]
