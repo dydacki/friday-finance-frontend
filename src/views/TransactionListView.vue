@@ -2,10 +2,21 @@
   <ComponentLoader
     :z-index="19"
     v-if="loading"/>
+    <div class="flex justify-center mt-24 mb-32">
+      <TableLite 
+      class="self-center w-3/5"
+      :columns="transactionColumns"
+      :loading="loading"
+      :rows="frontendTransactions"
+      :rowClasses="rowClasses"
+      @rowClicked="editTransaction"
+      @get-now-page="nowPage" />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, Ref, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import gql from 'graphql-tag';
 import { useApolloClient } from '@vue/apollo-composable';
 import { Account } from '../assets/interfaces/backend/Account';
@@ -16,7 +27,9 @@ import { Category as FrontendCategory } from '../assets/interfaces/frontend/Cate
 import { Transaction as FrontendTransaction } from '../assets/interfaces/frontend/Transaction';
 import { toFrontendAccount, toFrontendCategory, toFrontendTransaction } from '../assets/ModelTransforms';
 import ComponentLoader from '../components/ComponentLoader.vue';
+import TableLite from 'vue3-table-lite/ts';
 
+const router = useRouter();
 const loading: Ref<Boolean> = ref(false);
 const accounts: Ref<Account[]> = ref([]);
 const categories: Ref<Category[]> = ref([]);
@@ -25,6 +38,35 @@ const frontendCategories: Ref<FrontendCategory[]> = ref([]);
 const frontendTransactions: Ref<FrontendTransaction[]> = ref([]);
 const graphQlClient = useApolloClient().resolveClient();
 const pageNo: Ref<number> = ref(1);
+
+const rowClasses = ['cursor-pointer'];
+const transactionColumns = [
+  {
+    label: "Account",
+    field: "account",
+    width: "30%",
+  },
+  {
+    label: "Category",
+    field: "category",
+    width: "40%",
+  },
+  {
+    label: "Reference",
+    field: "reference",
+    width: "20%",
+  },
+  {
+    label: "Amount",
+    field: "amount",
+    width: "5%",
+  },
+  {
+    label: "Currency",
+    field: "currency",
+    width: "5%",
+  }
+];
 
 const fetchAccounts = async(): Promise<Account[]> => {
   const accountsQuery = gql`
@@ -115,18 +157,22 @@ const loadData = async () => {
   }).finally(() => loading.value = false);
 };
 
+const editTransaction = (transaction: FrontendTransaction) => {
+  router.push(`/transactions/${transaction.id}`);
+}
+
+const nowPage = (pageNumber: number) => {
+  console.log('Page number:', pageNumber);
+} 
+
 onMounted(async () => {
   loading.value = true;
-  await loadData();
+  loadData();
 });
 </script>
 
-<style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
+<style scoped>
+.table {
+  max-width: 1200px;
 }
 </style>
