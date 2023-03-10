@@ -2,15 +2,47 @@
   <ComponentLoader
     :z-index="19"
     v-if="loading"/>
-    <div class="flex justify-center mt-24 mb-32">
+    <div class="flex flex-col mt-24 mb-32">
+      <div class="flex flex-row self-center w-3/5 mb-4 justify-between">
+        <div>
+          <input
+          v-model="searchString"
+          class="friday-input-field search-field"
+          placeholder="Search transactions"
+          :disabled="loading" />
+        </div>
+        <div class="flex gap-4">
+          <select
+            v-model="accountId"
+            class="friday-select"
+            :disabled="loading">
+            <option
+              value="">Filter by account</option>
+            <option
+              v-for="account in frontendAccounts"
+              :key="account.id"
+              :value="account.id">{{ account.description }}</option>
+          </select>
+          <select
+            v-model="categoryId"
+            class="friday-select"
+            :disabled="loading">
+            <option
+              value="">Filter by category</option>
+            <option
+              v-for="category in frontendCategories"
+              :key="category.id"
+              :value="category.id">{{ category.description }}</option>
+          </select>
+        </div>
+      </div>
       <TableLite 
       class="self-center w-3/5"
       :columns="transactionColumns"
       :loading="loading"
       :rows="transactions"
       :rowClasses="rowClasses"
-      @rowClicked="editTransaction"
-      @get-now-page="nowPage" />
+      @rowClicked="editTransaction" />
   </div>
 </template>
 
@@ -30,7 +62,7 @@ import ComponentLoader from '../components/ComponentLoader.vue';
 import TableLite from 'vue3-table-lite/ts';
 
 const router = useRouter();
-const loading: Ref<Boolean> = ref(false);
+const loading = ref(false);
 const accounts: Ref<Account[]> = ref([]);
 const categories: Ref<Category[]> = ref([]);
 const frontendAccounts: Ref<FrontendAccount[]> = ref([]);
@@ -42,6 +74,10 @@ const pageNo: Ref<number> = ref(1);
 const fromTransaction: Ref<number> = ref(0);
 const toTransaction: Ref<number> = ref(0);
 const totalTransactions: Ref<number> = ref(0);
+
+const accountId: Ref<string> = ref('');
+const categoryId: Ref<string> = ref('');
+const searchString: Ref<string> = ref('');
 
 const rowClasses: string[] = ['cursor-pointer', 'table-row'];
 const transactionColumns = [
@@ -149,11 +185,11 @@ const fetchTransactions = async(): Promise<TransactionPage | null> => {
       pageNo: pageNo.value
   }
   });
-  
+
   return result.data?.getTransactions as TransactionPage;
 }
 
-const loadData = async () => {
+const loadData = async() => {
   Promise.all([
   fetchAccounts(),
   fetchCategories(),
@@ -178,10 +214,6 @@ const editTransaction = (transaction: FrontendTransaction) => {
   router.push(`/transactions/${transaction.id}`);
 }
 
-const nowPage = (pageNumber: number) => {
-  console.log('Page number:', pageNumber);
-} 
-
 onMounted(async () => {
   loading.value = true;
   loadData();
@@ -189,7 +221,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.table {
-  max-width: 1200px;
+.search-field {
+  width: 300px;
 }
 </style>
