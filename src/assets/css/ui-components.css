@@ -69,11 +69,16 @@
   color: var(--color-silver-chalice);
 }
 
-.table-row-background {
+.table-row {
   color: var(--color-seashell);
   background-color: var(--color-bright-gray);
 }
 
-.table-row-background:nth-of-type(2n) {
+.table-row:nth-of-type(2n) {
   background-color: var(--color-charade);
+}
+
+.table-header {
+  border: 1px solid var(--color-woodsmoke);
+  background-color: var(--color-shuttle-gray);
 }

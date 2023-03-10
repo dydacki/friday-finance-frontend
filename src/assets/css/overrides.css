@@ -1,6 +1,20 @@
 .vtl-table {
+  border: 1px solid var(--color-woodsmoke);
   border-radius: 6px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 50%);
+}
+
+.vtl-table thead th {
+  background-color: var(--color-shuttle-gray) !important;
+  border: 1px solid var(--color-woodsmoke) !important;
+  padding: 0.5rem;  
+}
+
+.vtl-tbody-td {
+  padding: 0.5rem !important;
+  border-left: 1px solid var(--color-woodsmoke) !important;
+  border-right: 1px solid var(--color-woodsmoke) !important;
+  border-bottom: 1px solid var(--color-woodsmoke) !important;
 }
 
 .vtl-card-body {

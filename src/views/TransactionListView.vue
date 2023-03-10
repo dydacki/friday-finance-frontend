@@ -39,7 +39,7 @@ const frontendTransactions: Ref<FrontendTransaction[]> = ref([]);
 const graphQlClient = useApolloClient().resolveClient();
 const pageNo: Ref<number> = ref(1);
 
-const rowClasses = ['cursor-pointer', 'table-row-background'];
+const rowClasses: string[] = ['cursor-pointer', 'table-row'];
 const transactionColumns = [
   {
     label: "Account",
