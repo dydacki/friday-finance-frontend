@@ -19,11 +19,12 @@ function toFrontendCategory(category: BackendCategory): FrontendCategory {
   };
 }
 
-function toFrontendTransaction(transaction: BackendTransaction, accounts: BackendAccount[], categories: BackendCategory[]): FrontendTransaction {
+function toFrontendTransaction(transaction: BackendTransaction, sequenceNo: number, accounts: BackendAccount[], categories: BackendCategory[]): FrontendTransaction {
   const account = accounts.find(a => a.id === transaction.accountId)?.name ?? '';
   const category = categories.find(c => c.id === transaction.categoryId)?.name ?? '';
   const reference = transaction.reference !== '' ? transaction.reference : '-';
   return {
+    sequenceNo: sequenceNo,
     account: account,
     amount: transaction.amount,
     category: category,

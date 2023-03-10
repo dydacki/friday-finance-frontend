@@ -4,7 +4,7 @@
     :text="status"
     v-if="loading || saving" />
   <div class="flex flex-wrap w-full">
-    <fieldset class="section w-full border rounded mt-4 ml-6 mr-6 mb-4 pl-2 pr-2 pb-2">
+    <fieldset class="section w-full border mt-4 ml-6 mr-6 mb-4 pl-2 pr-2 pb-2">
       <legend class="text-xl ml-4 mr-4 pl-2 pr-2">
           {{ transactionReference() }}
       </legend>

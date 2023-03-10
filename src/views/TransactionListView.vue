@@ -151,10 +151,13 @@ const loadData = async () => {
     categories.value = results[1];
     frontendAccounts.value = results[0].map(a => toFrontendAccount(a));
     frontendCategories.value = results[1].map(c => toFrontendCategory(c));
-    frontendTransactions.value = results[2].map(t => toFrontendTransaction(t, accounts.value, categories.value));
+    let sequenceNo: number = 0;
+    frontendTransactions.value = results[2].map(t => toFrontendTransaction(t, ++sequenceNo, accounts.value, categories.value));
   }).catch(error => {
     console.log(error)
-  }).finally(() => loading.value = false);
+  }).finally(() => {
+    loading.value = false;
+    console.log(JSON.stringify(frontendTransactions.value)) });
 };
 
 const editTransaction = (transaction: FrontendTransaction) => {
