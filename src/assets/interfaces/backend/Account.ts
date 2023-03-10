@@ -3,3 +3,8 @@ export interface Account {
   name: string;
   bank: string;
 }
+
+export interface AccountBrief {
+  id: string;
+  name: string;
+}

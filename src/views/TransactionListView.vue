@@ -7,7 +7,7 @@
       class="self-center w-3/5"
       :columns="transactionColumns"
       :loading="loading"
-      :rows="frontendTransactions"
+      :rows="transactions"
       :rowClasses="rowClasses"
       @rowClicked="editTransaction"
       @get-now-page="nowPage" />
@@ -21,11 +21,11 @@ import gql from 'graphql-tag';
 import { useApolloClient } from '@vue/apollo-composable';
 import { Account } from '../assets/interfaces/backend/Account';
 import { Category } from '../assets/interfaces/backend/Category';
-import { Transaction } from '../assets/interfaces/backend/Transaction';
+import { Transaction, TransactionPage } from '../assets/interfaces/backend/Transaction';
 import { Account as FrontendAccount } from '../assets/interfaces/frontend/Account';
 import { Category as FrontendCategory } from '../assets/interfaces/frontend/Category';
 import { Transaction as FrontendTransaction } from '../assets/interfaces/frontend/Transaction';
-import { toFrontendAccount, toFrontendCategory, toFrontendTransaction } from '../assets/ModelTransforms';
+import { toFrontendAccount, toFrontendCategory } from '../assets/ModelTransforms';
 import ComponentLoader from '../components/ComponentLoader.vue';
 import TableLite from 'vue3-table-lite/ts';
 
@@ -35,7 +35,7 @@ const accounts: Ref<Account[]> = ref([]);
 const categories: Ref<Category[]> = ref([]);
 const frontendAccounts: Ref<FrontendAccount[]> = ref([]);
 const frontendCategories: Ref<FrontendCategory[]> = ref([]);
-const frontendTransactions: Ref<FrontendTransaction[]> = ref([]);
+const transactions: Ref<Transaction[]> = ref([]);
 const graphQlClient = useApolloClient().resolveClient();
 const pageNo: Ref<number> = ref(1);
 
@@ -45,11 +45,13 @@ const transactionColumns = [
     label: "Account",
     field: "account",
     width: "30%",
+    display: (row: Transaction) => row.account?.name ?? ''
   },
   {
     label: "Category",
     field: "category",
     width: "40%",
+    display: (row: Transaction) => row.category?.name ?? ''
   },
   {
     label: "Reference",
@@ -112,17 +114,27 @@ const fetchCategories = async(): Promise<Category[]> => {
   }
 }
 
-const fetchTransactions = async(): Promise<Transaction[]> => {
+const fetchTransactions = async(): Promise<TransactionPage | null> => {
   const transactionsQuery = gql`
-    query GetTransactions($pageNo: Int!){
+    query getTransactions($pageNo: Int!) {
       getTransactions(pageNo: $pageNo) {
-        id
-        accountId
-        categoryId
-        reference
-        amount
-        currency
-        date
+        transactions {
+          account {
+            id
+            name
+          }
+          amount
+          category {
+            id
+            name
+          }
+          currency
+          date
+          id
+        }
+        totalTransactions
+        fromTransaction
+        toTransaction
       }
     }
   `;
@@ -134,10 +146,10 @@ const fetchTransactions = async(): Promise<Transaction[]> => {
         pageNo: pageNo.value
     }
     });
-    return result.data?.getTransactions as Transaction[] ?? [];
+    return result.data?.getTransactions as TransactionPage;
   } catch (error) {
     console.error(error);
-    return [];
+    return null;
   }
 }
 
@@ -151,7 +163,10 @@ const loadData = async () => {
     categories.value = results[1];
     frontendAccounts.value = results[0].map(a => toFrontendAccount(a));
     frontendCategories.value = results[1].map(c => toFrontendCategory(c));
-    frontendTransactions.value = results[2].map(t => toFrontendTransaction(t, accounts.value, categories.value));
+    
+    if (results[2]) {
+      transactions.value = results[2].transactions;
+    }
   }).catch(error => {
     console.log(error)
   }).finally(() => loading.value = false);

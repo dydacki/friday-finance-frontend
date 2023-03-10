@@ -12,7 +12,7 @@
         <div class="column mb-4 p-2 w-1/2">
           <label>Acount</label>
           <select
-            v-model="transaction.accountId"
+            v-model="transaction.account.id"
             class="friday-select w-full mt-1">
             <option
               disabled
@@ -27,7 +27,7 @@
         <div class="column mb-4 p-2 w-1/2">
           <label>Category</label>
           <select
-            v-model="transaction.categoryId"
+            v-model="transaction.category.id"
             class="friday-select w-full mt-1">
             <option
               disabled
@@ -141,8 +141,14 @@ const currencies = [
 
 const transaction: Ref<BackendTransaction> = ref({
   id: '',
-  accountId: '',
-  categoryId: '',
+  account: {
+    id: '',
+    name: ''
+  },
+  category: {
+    id: '',
+    name: ''
+  },
   amount: 0,
   currency: '',
   date: '',
@@ -205,8 +211,14 @@ const fetchTransaction = async(transactionId: string): Promise<BackendTransactio
     query {
       getTransaction(id: "${transactionId}") {
         id
-        accountId
-        categoryId
+        account {
+          id
+          name
+        }
+        category {
+          id
+          name
+        }
         reference
         amount
         currency
@@ -240,7 +252,6 @@ const updateTransaction = async(backendTransaction: BackendTransaction): Promise
       }
     }
   `;
-  
 
   await graphQlClient.mutate({
     mutation: mutation,
@@ -252,9 +263,15 @@ const updateTransaction = async(backendTransaction: BackendTransaction): Promise
 
 const runTransactionUpdate = () => {
   const transactionUpdate: BackendTransaction = {
-    accountId: transaction.value.accountId,
+    account: {
+      id: transaction.value.account.id,
+      name: transaction.value.account.name
+    },
     amount: transaction.value.amount,
-    categoryId: transaction.value.categoryId,
+    category: {
+      id: transaction.value.category.id,
+      name: transaction.value.category.name
+    },
     currency: transaction.value.currency,
     date: transaction.value.date,
     id: transaction.value.id,
