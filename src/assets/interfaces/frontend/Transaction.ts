@@ -1,5 +1,4 @@
 export interface Transaction {
-  sequenceNo: number;
   id: string;
   account: string;
   category: string;
