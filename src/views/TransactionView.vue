@@ -1,7 +1,8 @@
 <template>
   <ComponentLoader
     :z-index="19"
-    v-if="loading" />
+    :text="status"
+    v-if="loading || saving" />
   <div class="flex flex-wrap w-full">
     <fieldset class="section w-full border rounded mt-4 ml-6 mr-6 mb-4 pl-2 pr-2 pb-2">
       <legend class="text-xl ml-4 mr-4 pl-2 pr-2">
@@ -89,7 +90,7 @@
         <button
           :disabled="loading || saving"
           class="button primary-button"
-          @click="saveTransaction">Save transaction</button>
+          @click="update">Save transaction</button>
       </div>
     </fieldset>
   </div>
@@ -108,6 +109,7 @@ import { Transaction as BackendTransaction } from '../assets/interfaces/backend/
 import { toFrontendAccount, toFrontendCategory } from '../assets/ModelTransforms';
 import ComponentLoader from '../components/ComponentLoader.vue';
 
+const status: Ref<string> = ref('');
 const graphQlClient = useApolloClient().resolveClient();
 const router = useRouter();
 const transactionId: string = useRoute().params.transactionId.toString();
@@ -248,20 +250,7 @@ const updateTransaction = async(backendTransaction: BackendTransaction): Promise
   });
 }
 
-onMounted(async () => {
-  loading.value = true;
-  const accounts = await fetchAccounts();
-  const categories = await fetchCategories();
-  const result = await fetchTransaction(transactionId); 
-  frontendAccounts.value = accounts.map(a => toFrontendAccount(a));
-  frontendCategories.value = categories.map(c => toFrontendCategory(c));
-  if (result) {
-    transaction.value = result;
-  }
-  loading.value = false;
-});
-
-const saveTransaction = () => {
+const runTransactionUpdate = () => {
   const transactionUpdate: BackendTransaction = {
     accountId: transaction.value.accountId,
     amount: transaction.value.amount,
@@ -271,15 +260,45 @@ const saveTransaction = () => {
     id: transaction.value.id,
     reference: transaction.value.reference
   }; 
-  saving.value = true;
+  
   try {
     updateTransaction(transactionUpdate);
   } catch (error) {
     console.error(error);
     saving.value = false;
+    return;
   }
 
+  saving.value = false;
+  status.value = '';
   router.push('/transactions');
+}
+
+const load = () => {
+  loading.value = true;
+  status.value = 'Loading data';
+  setTimeout(loadData, 400);
+}
+
+const loadData = async() => {
+  const accounts = await fetchAccounts();
+  const categories = await fetchCategories();
+  const result = await fetchTransaction(transactionId); 
+  frontendAccounts.value = accounts.map(a => toFrontendAccount(a));
+  frontendCategories.value = categories.map(c => toFrontendCategory(c));
+  if (result) {
+    transaction.value = result;
+  }
+  loading.value = false;
+  status.value = '';
+}
+
+onMounted(() => load());
+
+const update = () => {
+  saving.value = true;
+  status.value = 'Saving data';
+  setTimeout(runTransactionUpdate, 400);
 }
 </script>
 
