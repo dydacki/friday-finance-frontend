@@ -39,7 +39,7 @@ const frontendTransactions: Ref<FrontendTransaction[]> = ref([]);
 const graphQlClient = useApolloClient().resolveClient();
 const pageNo: Ref<number> = ref(1);
 
-const rowClasses = ['cursor-pointer'];
+const rowClasses = ['cursor-pointer', 'table-row-background'];
 const transactionColumns = [
   {
     label: "Account",
@@ -155,9 +155,7 @@ const loadData = async () => {
     frontendTransactions.value = results[2].map(t => toFrontendTransaction(t, ++sequenceNo, accounts.value, categories.value));
   }).catch(error => {
     console.log(error)
-  }).finally(() => {
-    loading.value = false;
-    console.log(JSON.stringify(frontendTransactions.value)) });
+  }).finally(() => loading.value = false);
 };
 
 const editTransaction = (transaction: FrontendTransaction) => {

@@ -68,3 +68,12 @@
   border-color: var(--color-alto);
   color: var(--color-silver-chalice);
 }
+
+.table-row-background {
+  color: var(--color-seashell);
+  background-color: var(--color-bright-gray);
+}
+
+.table-row-background:nth-of-type(2n) {
+  background-color: var(--color-charade);
+}
