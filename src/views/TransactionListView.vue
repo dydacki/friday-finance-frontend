@@ -37,7 +37,11 @@ const frontendAccounts: Ref<FrontendAccount[]> = ref([]);
 const frontendCategories: Ref<FrontendCategory[]> = ref([]);
 const transactions: Ref<Transaction[]> = ref([]);
 const graphQlClient = useApolloClient().resolveClient();
+
 const pageNo: Ref<number> = ref(1);
+const fromTransaction: Ref<number> = ref(0);
+const toTransaction: Ref<number> = ref(0);
+const totalTransactions: Ref<number> = ref(0);
 
 const rowClasses: string[] = ['cursor-pointer', 'table-row'];
 const transactionColumns = [
@@ -139,18 +143,14 @@ const fetchTransactions = async(): Promise<TransactionPage | null> => {
     }
   `;
   
-  try {
-    const result = await graphQlClient.query({
-      query: transactionsQuery,
-      variables: {
-        pageNo: pageNo.value
-    }
-    });
-    return result.data?.getTransactions as TransactionPage;
-  } catch (error) {
-    console.error(error);
-    return null;
+  const result = await graphQlClient.query({
+    query: transactionsQuery,
+    variables: {
+      pageNo: pageNo.value
   }
+  });
+  
+  return result.data?.getTransactions as TransactionPage;
 }
 
 const loadData = async () => {
@@ -163,9 +163,11 @@ const loadData = async () => {
     categories.value = results[1];
     frontendAccounts.value = results[0].map(a => toFrontendAccount(a));
     frontendCategories.value = results[1].map(c => toFrontendCategory(c));
-    
     if (results[2]) {
       transactions.value = results[2].transactions;
+      fromTransaction.value = results[2].fromTransaction;
+      toTransaction.value = results[2].totalTransactions;
+      totalTransactions.value = results[2].totalTransactions;
     }
   }).catch(error => {
     console.log(error)
