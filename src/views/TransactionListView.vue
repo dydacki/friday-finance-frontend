@@ -48,7 +48,11 @@
         :page="pageNo"
         :displaying-items="displayedItems"
         :total-pages="totalPages"
-        :total-items="totalTransactions" />
+        :total-items="totalTransactions"
+        @first-page="fetchFirst"
+        @previous-page="fetchPrevious"
+        @next-page="fetchNext"
+        @last-page="fetchLast" />
   </div>
 </template>
 
@@ -218,38 +222,78 @@ const filterBySearchString = (transactionPage: TransactionPage, searchString: st
         || t.date.includes(searchString)
         || t.reference?.includes(searchString));
   }
-}
+};
 
 const filterByAccount = (transactionPage: TransactionPage, accountId: string): void => {
   if (accountId) {
     transactionPage.transactions = transactionPage.transactions.filter(t => t.account.id === accountId);
   }
-}
+};
 
 const filterBycategory = (transactionPage: TransactionPage, categoryId: string): void => {
   if (categoryId) {
     transactionPage.transactions = transactionPage.transactions.filter(t => t.category.id === categoryId);
   }
-}
+};
 
-const fetchAndFilterTransactionsPage = async(pageNumber: number = 1): Promise<FrontendTransactionPage | null> => {
-  const transactionPage = await fetchTransactions(pageNumber);
+const fetchAndFilterTransactionsPage = async(): Promise<FrontendTransactionPage | null> => {
+  const transactionPage = await fetchTransactions(pageNo.value);
   if (transactionPage) {
-    filterBySearchString(transactionPage, accountId.value);
-    filterByAccount(transactionPage, accountId.value);
-    filterBycategory(transactionPage, categoryId.value);
+    // filterBySearchString(transactionPage, accountId.value);
+    // filterByAccount(transactionPage, accountId.value);
+    // filterBycategory(transactionPage, categoryId.value);
     return toFrontendTransactionPage(transactionPage);
   }
 
   return null;
-}
+};
 
 const editTransaction = (transaction: Transaction) => {
   router.push(`/transactions/${transaction.id}`);
-}
+};
 
 onMounted(async () => {
   loading.value = true;
   loadData();
 });
+
+const loadTransactionsAsync = async() => {
+  fetchAndFilterTransactionsPage()
+  .then(result => {
+    if (result) {
+      transactions.value = result.transactions;
+      displayedItems.value = transactions.value.length; 
+      totalTransactions.value = result.totalTransactions;
+      totalPages.value = Math.ceil(totalTransactions.value / 15);
+
+      console.log (totalTransactions.value)
+    }
+  })
+  .catch(error => 
+  console.log(error))
+  .finally(() => loading.value = false);
+};
+
+const fetchFirst = () => {
+  pageNo.value = 1;
+  loading.value = true;
+  setTimeout(loadTransactionsAsync, 400);
+};
+
+const fetchPrevious = () => {
+  pageNo.value -= 1;
+  loading.value = true;
+  setTimeout(loadTransactionsAsync, 400);
+};
+
+const fetchNext = () => {
+  pageNo.value += 1;
+  loading.value = true;
+  setTimeout(loadTransactionsAsync, 400);
+};
+
+const fetchLast = () => {
+  pageNo.value = totalPages.value;
+  setTimeout(loadTransactionsAsync, 400);
+}
 </script>
