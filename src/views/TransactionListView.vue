@@ -11,7 +11,7 @@
           class="friday-input-field search-field"
           placeholder="Search transactions"
           :disabled="loading"
-          @keyup="applyFiltering" />
+          @keyup="debouceFiltering" />
         </div>
         <div class="flex gap-4">
           <select
@@ -96,6 +96,7 @@ const totalTransactions: Ref<number> = ref(0);
 const accountId: Ref<string> = ref('');
 const categoryId: Ref<string> = ref('');
 const searchString: Ref<string> = ref('');
+const searchTimeout = ref(); 
 
 const rowClasses: string[] = ['cursor-pointer', 'table-row'];
 const transactionColumns = [
@@ -212,6 +213,11 @@ const loadData = async() => {
   }).catch(error => console.log(error))
   .finally(() => loading.value = false);
 };
+
+const debouceFiltering = () => {
+  clearTimeout(searchTimeout.value);
+  searchTimeout.value = setTimeout(() => applyFiltering(), 300);
+}
 
 const applyFiltering = () => {
   filteredTransactions.value = filterTransactions(transactions.value);
