@@ -48,6 +48,8 @@
         :page="pageNo"
         :displaying-items="displayedItems"
         :total-pages="totalPages"
+        :start-item="startItem"
+        :end-item="endItem"
         :total-items="totalTransactions"
         @first-page="fetchFirst"
         @previous-page="fetchPrevious"
@@ -83,6 +85,8 @@ const graphQlClient = useApolloClient().resolveClient();
 
 const pageNo: Ref<number> = ref(1);
 const totalPages: Ref<number> = ref(0);
+const startItem: Ref<number> = ref(0);
+const endItem: Ref<number> = ref(0);
 const displayedItems: Ref<number> = ref(0);
 const totalTransactions: Ref<number> = ref(0);
 
@@ -203,6 +207,8 @@ const loadData = async() => {
     frontendCategories.value = results[1].map(c => toFrontendCategory(c));
     if (results[2]) {
       transactions.value = results[2].transactions;
+      startItem.value = results[2].start;
+      endItem.value = results[2].end;
       displayedItems.value = transactions.value.length; 
       totalTransactions.value = results[2].totalTransactions;
       totalPages.value = Math.ceil(totalTransactions.value / 15);
@@ -262,11 +268,11 @@ const loadTransactionsAsync = async() => {
   .then(result => {
     if (result) {
       transactions.value = result.transactions;
+      startItem.value = result.start;
+      endItem.value = result.end;
       displayedItems.value = transactions.value.length; 
       totalTransactions.value = result.totalTransactions;
       totalPages.value = Math.ceil(totalTransactions.value / 15);
-
-      console.log (totalTransactions.value)
     }
   })
   .catch(error => 

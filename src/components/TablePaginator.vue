@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
     <div class="flex w-1/3 items-center pl-2">
-      Displaying {{ props.displayingItems }} of {{ props.totalItems }} items
+      {{ getDisplayingLabel() }}
     </div>
     <div class="flex justify-center w-1/3">
       <button 
@@ -44,6 +44,16 @@ const props = defineProps(
       required: false,
       default: 0,
     },
+    startItem: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
+    endItem: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
     totalItems: {
       type: Number,
       required: false,
@@ -59,6 +69,16 @@ const getPaginationLabel = (): string => {
   }
 
   return `Page: ${props.page}`;
+}
+
+const getDisplayingLabel = (): string => {
+  const pageSize = props.endItem - props.startItem + 1;
+
+  if (props.displayingItems == pageSize) {
+    return `Displaying ${props.startItem} - ${props.endItem} of ${props.totalItems} items`;  
+  }
+
+  return `Displaying ${props.displayingItems} items`;
 }
 
 const firstPage = () => {

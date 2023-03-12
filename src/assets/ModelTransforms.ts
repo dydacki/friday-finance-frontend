@@ -23,7 +23,9 @@ function toFrontendTransactionPage(transactionPage: BackendTransactionPage): Tra
   return {
     transactions: transactionPage.transactions,
     displayedTransactions: transactionPage.transactions.length,
-    totalTransactions: transactionPage.totalTransactions
+    totalTransactions: transactionPage.totalTransactions,
+    start: transactionPage.fromTransaction,
+    end: transactionPage.toTransaction
   };
 }
 
