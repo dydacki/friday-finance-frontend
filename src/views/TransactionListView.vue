@@ -2,8 +2,9 @@
   <ComponentLoader
     :z-index="19"
     v-if="loading"/>
-    <div class="flex flex-col mt-24">
-      <div class="flex flex-row self-center w-3/5 mb-4 justify-between">
+  <div class="flex flex-col mt-24 items-center">
+    <div class="w-3/5">
+      <div class="flex flex-row mb-4 justify-between">
         <div>
           <input
           v-model="searchString"
@@ -16,9 +17,10 @@
           <select
             v-model="accountId"
             class="friday-select"
-            :disabled="loading">
+            :disabled="loading"
+            @change="applyFiltering">
             <option
-              value="">Filter by account</option>
+              value="">Search by account</option>
             <option
               v-for="account in frontendAccounts"
               :key="account.id"
@@ -27,9 +29,10 @@
           <select
             v-model="categoryId"
             class="friday-select"
-            :disabled="loading">
+            :disabled="loading"
+            @change="applyFiltering">
             <option
-              value="">Filter by category</option>
+              value="">Search by category</option>
             <option
               v-for="category in frontendCategories"
               :key="category.id"
@@ -37,15 +40,13 @@
           </select>
         </div>
       </div>
-      <TableLite 
-      class="self-center w-3/5"
-      :columns="transactionColumns"
-      :loading="loading"
-      :rows="filteredTransactions"
-      :rowClasses="rowClasses"
-      @rowClicked="editTransaction" />
+      <TableLite
+        :columns="transactionColumns"
+        :loading="loading"
+        :rows="filteredTransactions"
+        :rowClasses="rowClasses"
+        @rowClicked="editTransaction" />
       <TablePaginator
-        class="self-center w-3/5"
         :page="pageNo"
         :displaying-items="displayedItems"
         :total-pages="totalPages"
@@ -56,6 +57,7 @@
         @previous-page="fetchPrevious"
         @next-page="fetchNext"
         @last-page="fetchLast" />
+    </div>
   </div>
 </template>
 
@@ -211,7 +213,7 @@ const loadData = async() => {
       filteredTransactions.value = filterTransactions(results[2].transactions);
       startItem.value = results[2].fromTransaction;
       endItem.value = results[2].toTransaction;
-      displayedItems.value = transactions.value.length; 
+      displayedItems.value = filteredTransactions.value.length; 
       totalTransactions.value = results[2].totalTransactions;
       totalPages.value = Math.ceil(totalTransactions.value / 15);
     }
@@ -225,7 +227,9 @@ const applyFiltering = () => {
 }
 
 const filterTransactions = (transactionList: Transaction[]) => {
-  return filterBySearchString(transactionList, searchString.value);
+  return filterByCategory(
+          filterByAccount( 
+            filterBySearchString(transactionList, searchString.value), accountId.value), categoryId.value);
 }
 
 const filterBySearchString = (transactions: Transaction[], searchString: string): Transaction[] => {
@@ -242,16 +246,22 @@ const filterBySearchString = (transactions: Transaction[], searchString: string)
   return result;
 };
 
-const filterByAccount = (transactionPage: TransactionPage, accountId: string): void => {
+const filterByAccount = (transactions: Transaction[], accountId: string): Transaction[] => {
+  let result: Transaction[] = transactions;
   if (accountId) {
-    transactionPage.transactions = transactionPage.transactions.filter(t => t.account.id === accountId);
+    result = result.filter(t => t.account.id === accountId);
   }
+
+  return result;
 };
 
-const filterBycategory = (transactionPage: TransactionPage, categoryId: string): void => {
+const filterByCategory = (transactions: Transaction[], categoryId: string): Transaction[] => {
+  let result: Transaction[] = transactions;
   if (categoryId) {
-    transactionPage.transactions = transactionPage.transactions.filter(t => t.category.id === categoryId);
+    result = result.filter(t => t.category.id === categoryId);
   }
+
+  return result;
 };
 
 const editTransaction = (transaction: Transaction) => {
@@ -271,7 +281,7 @@ const loadTransactionsAsync = async() => {
       filteredTransactions.value = filterTransactions(result.transactions);
       startItem.value = result.fromTransaction;
       endItem.value = result.toTransaction;
-      displayedItems.value = transactions.value.length; 
+      displayedItems.value = filteredTransactions.value.length; 
       totalTransactions.value = result.totalTransactions;
       totalPages.value = Math.ceil(totalTransactions.value / 15);
     }
