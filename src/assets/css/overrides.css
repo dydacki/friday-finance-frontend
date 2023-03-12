@@ -20,3 +20,9 @@
 .vtl-card-body {
   background-color: var(--color-shark);
 }
+
+.vtl-paging.vtl-row {
+  visibility: hidden;
+  width: 0px;
+  height: 0px;
+}

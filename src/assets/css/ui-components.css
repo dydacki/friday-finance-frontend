@@ -82,3 +82,21 @@
   border: 1px solid var(--color-woodsmoke);
   background-color: var(--color-shuttle-gray);
 }
+
+.table-page-button {
+  background-color: var(--color-shuttle-gray);
+  color: var(--color-woodsmoke);
+  border-right: 1px solid var(--color-cod-gray);
+  cursor: default;
+  padding:  4px 10px;
+}
+
+.left-rounded {
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.right-rounded {
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}

@@ -43,6 +43,9 @@
       :rows="transactions"
       :rowClasses="rowClasses"
       @rowClicked="editTransaction" />
+      <TablePaginator
+        :page="pageNo"
+        :total-pages="totalPages" />
   </div>
 </template>
 
@@ -59,6 +62,7 @@ import { Category as FrontendCategory } from '../assets/interfaces/frontend/Cate
 import { Transaction as FrontendTransaction } from '../assets/interfaces/frontend/Transaction';
 import { toFrontendAccount, toFrontendCategory } from '../assets/ModelTransforms';
 import ComponentLoader from '../components/ComponentLoader.vue';
+import TablePaginator from '../components/TablePaginator.vue';
 import TableLite from 'vue3-table-lite/ts';
 
 const router = useRouter();
@@ -71,6 +75,7 @@ const transactions: Ref<Transaction[]> = ref([]);
 const graphQlClient = useApolloClient().resolveClient();
 
 const pageNo: Ref<number> = ref(1);
+const totalPages: Ref<number> = ref(0);
 const fromTransaction: Ref<number> = ref(0);
 const toTransaction: Ref<number> = ref(0);
 const totalTransactions: Ref<number> = ref(0);
@@ -204,6 +209,7 @@ const loadData = async() => {
       fromTransaction.value = results[2].fromTransaction;
       toTransaction.value = results[2].totalTransactions;
       totalTransactions.value = results[2].totalTransactions;
+      totalPages.value = Math.floor(totalTransactions.value / 15);
     }
   }).catch(error => {
     console.log(error)
@@ -219,9 +225,3 @@ onMounted(async () => {
   loadData();
 });
 </script>
-
-<style scoped>
-.search-field {
-  width: 300px;
-}
-</style>
