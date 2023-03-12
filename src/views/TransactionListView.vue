@@ -44,8 +44,11 @@
       :rowClasses="rowClasses"
       @rowClicked="editTransaction" />
       <TablePaginator
+        class="self-center w-3/5"
         :page="pageNo"
-        :total-pages="totalPages" />
+        :displaying-items="displayedItems"
+        :total-pages="totalPages"
+        :total-items="totalTransactions" />
   </div>
 </template>
 
@@ -78,6 +81,7 @@ const pageNo: Ref<number> = ref(1);
 const totalPages: Ref<number> = ref(0);
 const fromTransaction: Ref<number> = ref(0);
 const toTransaction: Ref<number> = ref(0);
+const displayedItems: Ref<number> = ref(0);
 const totalTransactions: Ref<number> = ref(0);
 
 const accountId: Ref<string> = ref('');
@@ -206,6 +210,7 @@ const loadData = async() => {
     frontendCategories.value = results[1].map(c => toFrontendCategory(c));
     if (results[2]) {
       transactions.value = results[2].transactions;
+      displayedItems.value = transactions.value.length; 
       fromTransaction.value = results[2].fromTransaction;
       toTransaction.value = results[2].totalTransactions;
       totalTransactions.value = results[2].totalTransactions;
