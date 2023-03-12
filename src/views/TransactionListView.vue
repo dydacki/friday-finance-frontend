@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref } from 'vue';
+import { computed, ComputedRef, onMounted, Ref, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import gql from 'graphql-tag';
 import { useApolloClient } from '@vue/apollo-composable';
@@ -90,7 +90,7 @@ const pageNo: Ref<number> = ref(1);
 const totalPages: Ref<number> = ref(0);
 const startItem: Ref<number> = ref(0);
 const endItem: Ref<number> = ref(0);
-const displayedItems: Ref<number> = ref(0);
+const displayedItems: ComputedRef<number> = computed(() => filteredTransactions.value.length);
 const totalTransactions: Ref<number> = ref(0);
 
 const accountId: Ref<string> = ref('');
@@ -212,8 +212,7 @@ const loadData = async() => {
       transactions.value = results[2].transactions;
       filteredTransactions.value = filterTransactions(results[2].transactions);
       startItem.value = results[2].fromTransaction;
-      endItem.value = results[2].toTransaction;
-      displayedItems.value = filteredTransactions.value.length; 
+      endItem.value = results[2].toTransaction; 
       totalTransactions.value = results[2].totalTransactions;
       totalPages.value = Math.ceil(totalTransactions.value / 15);
     }
@@ -281,7 +280,6 @@ const loadTransactionsAsync = async() => {
       filteredTransactions.value = filterTransactions(result.transactions);
       startItem.value = result.fromTransaction;
       endItem.value = result.toTransaction;
-      displayedItems.value = filteredTransactions.value.length; 
       totalTransactions.value = result.totalTransactions;
       totalPages.value = Math.ceil(totalTransactions.value / 15);
     }
