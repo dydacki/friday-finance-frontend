@@ -62,8 +62,8 @@ import { Category } from '../assets/interfaces/backend/Category';
 import { Transaction, TransactionPage } from '../assets/interfaces/backend/Transaction';
 import { Account as FrontendAccount } from '../assets/interfaces/frontend/Account';
 import { Category as FrontendCategory } from '../assets/interfaces/frontend/Category';
-import { Transaction as FrontendTransaction } from '../assets/interfaces/frontend/Transaction';
-import { toFrontendAccount, toFrontendCategory } from '../assets/ModelTransforms';
+import { TransactionPage as FrontendTransactionPage } from '../assets/interfaces/frontend/TransactionPage';
+import { toFrontendAccount, toFrontendCategory, toFrontendTransactionPage } from '../assets/ModelTransforms';
 import ComponentLoader from '../components/ComponentLoader.vue';
 import TablePaginator from '../components/TablePaginator.vue';
 import TableLite from 'vue3-table-lite/ts';
@@ -79,8 +79,6 @@ const graphQlClient = useApolloClient().resolveClient();
 
 const pageNo: Ref<number> = ref(1);
 const totalPages: Ref<number> = ref(0);
-const fromTransaction: Ref<number> = ref(0);
-const toTransaction: Ref<number> = ref(0);
 const displayedItems: Ref<number> = ref(0);
 const totalTransactions: Ref<number> = ref(0);
 
@@ -129,16 +127,11 @@ const fetchAccounts = async(): Promise<Account[]> => {
       }
     }
   `;
-  
-  try {
-    const result = await graphQlClient.query({
-      query: accountsQuery
-    });
-    return result.data?.getAccounts as Account[] ?? [];
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
+
+  const result = await graphQlClient.query({
+    query: accountsQuery
+  });
+  return result.data?.getAccounts as Account[] ?? [];
 }
 
 const fetchCategories = async(): Promise<Category[]> => {
@@ -151,19 +144,15 @@ const fetchCategories = async(): Promise<Category[]> => {
       }
     }
   `;
-  
-  try {
-    const result = await graphQlClient.query({
-      query: categoriesQuery
-    });
-    return result.data?.getCategories as Category[] ?? [];
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
+
+  const result = await graphQlClient.query({
+    query: categoriesQuery
+  });
+    
+  return result.data?.getCategories as Category[] ?? [];
 }
 
-const fetchTransactions = async(): Promise<TransactionPage | null> => {
+const fetchTransactions = async(pageNumber: number): Promise<TransactionPage | null> => {
   const transactionsQuery = gql`
     query getTransactions($pageNo: Int!) {
       getTransactions(pageNo: $pageNo) {
@@ -191,7 +180,7 @@ const fetchTransactions = async(): Promise<TransactionPage | null> => {
   const result = await graphQlClient.query({
     query: transactionsQuery,
     variables: {
-      pageNo: pageNo.value
+      pageNo: pageNumber
   }
   });
 
@@ -202,7 +191,7 @@ const loadData = async() => {
   Promise.all([
   fetchAccounts(),
   fetchCategories(),
-  fetchTransactions()]
+  fetchAndFilterTransactionsPage()]
   ).then(results => {
     accounts.value = results[0];
     categories.value = results[1];
@@ -211,17 +200,51 @@ const loadData = async() => {
     if (results[2]) {
       transactions.value = results[2].transactions;
       displayedItems.value = transactions.value.length; 
-      fromTransaction.value = results[2].fromTransaction;
-      toTransaction.value = results[2].totalTransactions;
       totalTransactions.value = results[2].totalTransactions;
-      totalPages.value = Math.floor(totalTransactions.value / 15);
+      totalPages.value = Math.ceil(totalTransactions.value / 15);
     }
   }).catch(error => {
     console.log(error)
   }).finally(() => loading.value = false);
 };
 
-const editTransaction = (transaction: FrontendTransaction) => {
+const filterBySearchString = (transactionPage: TransactionPage, searchString: string): void => {
+  if (searchString) {
+    transactionPage.transactions = 
+      transactionPage.transactions.filter(t => 
+        t.account.name.includes(searchString)
+        || t.category.name.includes(searchString)
+        || t.currency.includes(searchString)
+        || t.date.includes(searchString)
+        || t.reference?.includes(searchString));
+  }
+}
+
+const filterByAccount = (transactionPage: TransactionPage, accountId: string): void => {
+  if (accountId) {
+    transactionPage.transactions = transactionPage.transactions.filter(t => t.account.id === accountId);
+  }
+}
+
+const filterBycategory = (transactionPage: TransactionPage, categoryId: string): void => {
+  if (categoryId) {
+    transactionPage.transactions = transactionPage.transactions.filter(t => t.category.id === categoryId);
+  }
+}
+
+const fetchAndFilterTransactionsPage = async(pageNumber: number = 1): Promise<FrontendTransactionPage | null> => {
+  const transactionPage = await fetchTransactions(pageNumber);
+  if (transactionPage) {
+    filterBySearchString(transactionPage, accountId.value);
+    filterByAccount(transactionPage, accountId.value);
+    filterBycategory(transactionPage, categoryId.value);
+    return toFrontendTransactionPage(transactionPage);
+  }
+
+  return null;
+}
+
+const editTransaction = (transaction: Transaction) => {
   router.push(`/transactions/${transaction.id}`);
 }
 

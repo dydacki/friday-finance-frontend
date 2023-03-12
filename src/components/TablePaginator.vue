@@ -1,6 +1,6 @@
 <template>
   <div class="flex">
-    <div class="flex w-1/3 items-center">
+    <div class="flex w-1/3 items-center pl-2">
       Displaying {{ props.displayingItems }} of {{ props.totalItems }} items
     </div>
     <div class="flex justify-center w-1/3">
