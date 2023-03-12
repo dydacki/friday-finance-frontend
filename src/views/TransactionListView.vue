@@ -2,14 +2,15 @@
   <ComponentLoader
     :z-index="19"
     v-if="loading"/>
-    <div class="flex flex-col mt-24 mb-32">
+    <div class="flex flex-col mt-24">
       <div class="flex flex-row self-center w-3/5 mb-4 justify-between">
         <div>
           <input
           v-model="searchString"
           class="friday-input-field search-field"
           placeholder="Search transactions"
-          :disabled="loading" />
+          :disabled="loading"
+          @keyup="applyFiltering" />
         </div>
         <div class="flex gap-4">
           <select
@@ -40,7 +41,7 @@
       class="self-center w-3/5"
       :columns="transactionColumns"
       :loading="loading"
-      :rows="transactions"
+      :rows="filteredTransactions"
       :rowClasses="rowClasses"
       @rowClicked="editTransaction" />
       <TablePaginator
@@ -68,8 +69,7 @@ import { Category } from '../assets/interfaces/backend/Category';
 import { Transaction, TransactionPage } from '../assets/interfaces/backend/Transaction';
 import { Account as FrontendAccount } from '../assets/interfaces/frontend/Account';
 import { Category as FrontendCategory } from '../assets/interfaces/frontend/Category';
-import { TransactionPage as FrontendTransactionPage } from '../assets/interfaces/frontend/TransactionPage';
-import { toFrontendAccount, toFrontendCategory, toFrontendTransactionPage } from '../assets/ModelTransforms';
+import { toFrontendAccount, toFrontendCategory } from '../assets/ModelTransforms';
 import ComponentLoader from '../components/ComponentLoader.vue';
 import TablePaginator from '../components/TablePaginator.vue';
 import TableLite from 'vue3-table-lite/ts';
@@ -81,6 +81,7 @@ const categories: Ref<Category[]> = ref([]);
 const frontendAccounts: Ref<FrontendAccount[]> = ref([]);
 const frontendCategories: Ref<FrontendCategory[]> = ref([]);
 const transactions: Ref<Transaction[]> = ref([]);
+const filteredTransactions: Ref<Transaction[]> = ref([]);
 const graphQlClient = useApolloClient().resolveClient();
 
 const pageNo: Ref<number> = ref(1);
@@ -199,7 +200,7 @@ const loadData = async() => {
   Promise.all([
   fetchAccounts(),
   fetchCategories(),
-  fetchAndFilterTransactionsPage()]
+  fetchTransactions(pageNo.value)]
   ).then(results => {
     accounts.value = results[0];
     categories.value = results[1];
@@ -207,8 +208,9 @@ const loadData = async() => {
     frontendCategories.value = results[1].map(c => toFrontendCategory(c));
     if (results[2]) {
       transactions.value = results[2].transactions;
-      startItem.value = results[2].start;
-      endItem.value = results[2].end;
+      filteredTransactions.value = filterTransactions(results[2].transactions);
+      startItem.value = results[2].fromTransaction;
+      endItem.value = results[2].toTransaction;
       displayedItems.value = transactions.value.length; 
       totalTransactions.value = results[2].totalTransactions;
       totalPages.value = Math.ceil(totalTransactions.value / 15);
@@ -218,16 +220,26 @@ const loadData = async() => {
   }).finally(() => loading.value = false);
 };
 
-const filterBySearchString = (transactionPage: TransactionPage, searchString: string): void => {
+const applyFiltering = () => {
+  filteredTransactions.value = filterTransactions(transactions.value);
+}
+
+const filterTransactions = (transactionList: Transaction[]) => {
+  return filterBySearchString(transactionList, searchString.value);
+}
+
+const filterBySearchString = (transactions: Transaction[], searchString: string): Transaction[] => {
+  let result: Transaction[] = transactions;
   if (searchString) {
-    transactionPage.transactions = 
-      transactionPage.transactions.filter(t => 
-        t.account.name.includes(searchString)
-        || t.category.name.includes(searchString)
-        || t.currency.includes(searchString)
-        || t.date.includes(searchString)
-        || t.reference?.includes(searchString));
+    result = result.filter(t => 
+      t.account.name.toLowerCase().includes(searchString)
+      || t.category.name.toLowerCase().includes(searchString)
+      || t.currency.toLowerCase().includes(searchString)
+      || t.date.includes(searchString)
+      || t.reference?.toLowerCase().includes(searchString));
   }
+
+  return result;
 };
 
 const filterByAccount = (transactionPage: TransactionPage, accountId: string): void => {
@@ -242,18 +254,6 @@ const filterBycategory = (transactionPage: TransactionPage, categoryId: string):
   }
 };
 
-const fetchAndFilterTransactionsPage = async(): Promise<FrontendTransactionPage | null> => {
-  const transactionPage = await fetchTransactions(pageNo.value);
-  if (transactionPage) {
-    // filterBySearchString(transactionPage, accountId.value);
-    // filterByAccount(transactionPage, accountId.value);
-    // filterBycategory(transactionPage, categoryId.value);
-    return toFrontendTransactionPage(transactionPage);
-  }
-
-  return null;
-};
-
 const editTransaction = (transaction: Transaction) => {
   router.push(`/transactions/${transaction.id}`);
 };
@@ -264,12 +264,13 @@ onMounted(async () => {
 });
 
 const loadTransactionsAsync = async() => {
-  fetchAndFilterTransactionsPage()
+  fetchTransactions(pageNo.value)
   .then(result => {
     if (result) {
       transactions.value = result.transactions;
-      startItem.value = result.start;
-      endItem.value = result.end;
+      filteredTransactions.value = filterTransactions(result.transactions);
+      startItem.value = result.fromTransaction;
+      endItem.value = result.toTransaction;
       displayedItems.value = transactions.value.length; 
       totalTransactions.value = result.totalTransactions;
       totalPages.value = Math.ceil(totalTransactions.value / 15);
@@ -300,6 +301,7 @@ const fetchNext = () => {
 
 const fetchLast = () => {
   pageNo.value = totalPages.value;
+  loading.value = true;
   setTimeout(loadTransactionsAsync, 400);
 }
 </script>
