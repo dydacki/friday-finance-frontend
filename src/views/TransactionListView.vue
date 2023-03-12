@@ -208,17 +208,9 @@ const loadData = async() => {
     categories.value = results[1];
     frontendAccounts.value = results[0].map(a => toFrontendAccount(a));
     frontendCategories.value = results[1].map(c => toFrontendCategory(c));
-    if (results[2]) {
-      transactions.value = results[2].transactions;
-      filteredTransactions.value = filterTransactions(results[2].transactions);
-      startItem.value = results[2].fromTransaction;
-      endItem.value = results[2].toTransaction; 
-      totalTransactions.value = results[2].totalTransactions;
-      totalPages.value = Math.ceil(totalTransactions.value / 15);
-    }
-  }).catch(error => {
-    console.log(error)
-  }).finally(() => loading.value = false);
+    assign(results[2]);
+  }).catch(error => console.log(error))
+  .finally(() => loading.value = false);
 };
 
 const applyFiltering = () => {
@@ -274,18 +266,8 @@ onMounted(async () => {
 
 const loadTransactionsAsync = async() => {
   fetchTransactions(pageNo.value)
-  .then(result => {
-    if (result) {
-      transactions.value = result.transactions;
-      filteredTransactions.value = filterTransactions(result.transactions);
-      startItem.value = result.fromTransaction;
-      endItem.value = result.toTransaction;
-      totalTransactions.value = result.totalTransactions;
-      totalPages.value = Math.ceil(totalTransactions.value / 15);
-    }
-  })
-  .catch(error => 
-  console.log(error))
+  .then(result => assign(result))
+  .catch(error => console.log(error))
   .finally(() => loading.value = false);
 };
 
@@ -311,5 +293,16 @@ const fetchLast = () => {
   pageNo.value = totalPages.value;
   loading.value = true;
   setTimeout(loadTransactionsAsync, 400);
-}
+};
+
+const assign = (transactionPage: TransactionPage | null) => {
+  if (transactionPage) {
+    transactions.value = transactionPage.transactions;
+    filteredTransactions.value = filterTransactions(transactionPage.transactions);
+    startItem.value = transactionPage.fromTransaction;
+    endItem.value = transactionPage.toTransaction;
+    totalTransactions.value = transactionPage.totalTransactions;
+    totalPages.value = Math.ceil(totalTransactions.value / 15);
+  }
+};
 </script>
